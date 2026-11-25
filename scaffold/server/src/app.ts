@@ -2,6 +2,8 @@ import express from 'express';
 import { errorHandler, HttpError } from './lib/http.js';
 import { graderRouter } from './routes/grader.js';
 import { webhookRouter } from './routes/webhook.js';
+import { authRouter } from './routes/auth.js';
+import { apiRouter } from './routes/api.js';
 
 // Set to true when SIGTERM arrives, so the load balancer stops sending us traffic.
 export const state = { shuttingDown: false };
@@ -23,7 +25,8 @@ export function createApp() {
   app.use(express.json({ limit: '1mb' }));
 
   app.use('/__grader', graderRouter);
-  // More routes are added here as we build them (api, auth).
+  app.use('/auth', authRouter);
+  app.use('/api', apiRouter);
 
   app.use((_req, _res, next) => next(new HttpError(404, 'Not found')));
   app.use(errorHandler);

@@ -28,15 +28,24 @@ export async function destroySession(id: string | undefined): Promise<void> {
   if (id) await getRedis().del(key(id));
 }
 
-// Read our session id from a raw Cookie header (used by HTTP routes and the WebSocket upgrade).
-export function sessionIdFromCookieHeader(header: string | undefined): string | undefined {
+// Read one cookie from a raw Cookie header (we don't need a cookie-parser dependency).
+export function readCookie(header: string | undefined, name: string): string | undefined {
   if (!header) return undefined;
   for (const part of header.split(';')) {
     const i = part.indexOf('=');
-    if (i > 0 && part.slice(0, i).trim() === SESSION_COOKIE) return decodeURIComponent(part.slice(i + 1).trim());
+    if (i > 0 && part.slice(0, i).trim() === name) {
+      try {
+        return decodeURIComponent(part.slice(i + 1).trim());
+      } catch {
+        return undefined;
+      }
+    }
   }
   return undefined;
 }
+
+// Used by HTTP routes and the WebSocket upgrade.
+export const sessionIdFromCookieHeader = (header: string | undefined) => readCookie(header, SESSION_COOKIE);
 
 export function roleIn(session: Session, workspace: string): Membership['role'] | null {
   return session.workspaces.find((w) => w.id === workspace)?.role ?? null;

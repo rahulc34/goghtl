@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { db, C, retryOnDuplicate } from '../lib/db.js';
 import { emitEvent } from './events.js';
 
@@ -72,4 +73,58 @@ export async function setState(workspace: string, contact: string, state: 'open'
   if (r.matchedCount === 0) return false;
   if (r.modifiedCount) await emitEvent(workspace, 'conversation.updated', { contact, state });
   return true;
+}
+
+// Inbox page: newest activity first. The cursor is the (lastActivityAt, _id) of the last row,
+// so pages stay stable while new messages arrive.
+export async function listConversations(
+  workspace: string,
+  opts: { state?: 'open' | 'closed'; limit: number; cursor?: string },
+) {
+  const filter: Record<string, unknown> = { workspace };
+  if (opts.state) filter.state = opts.state;
+  if (opts.cursor) {
+    const [t, id] = Buffer.from(opts.cursor, 'base64url').toString().split('|');
+    const at = new Date(Number(t));
+    if (!Number.isNaN(at.getTime()) && ObjectId.isValid(id)) {
+      filter.$or = [{ lastActivityAt: { $lt: at } }, { lastActivityAt: at, _id: { $lt: new ObjectId(id) } }];
+    }
+  }
+  const rows = await conversations()
+    .find(filter)
+    .sort({ lastActivityAt: -1, _id: -1 })
+    .limit(opts.limit + 1)
+    .toArray();
+  const page = rows.slice(0, opts.limit);
+  const last = page.at(-1);
+  return {
+    conversations: page.map((c) => ({
+      contact: c.contact,
+      assignee: c.assignee ?? null,
+      state: c.state,
+      lastActivityAt: c.lastActivityAt,
+    })),
+    nextCursor:
+      rows.length > opts.limit && last
+        ? Buffer.from(`${new Date(last.lastActivityAt).getTime()}|${last._id}`).toString('base64url')
+        : null,
+  };
+}
+
+// Messages of one conversation, oldest first (same order as the snapshot).
+export async function listMessages(workspace: string, contact: string) {
+  const rows = await db()
+    .collection(C.messages)
+    .find({ workspace, contact })
+    .sort({ occurredAt: 1, _id: 1 })
+    .limit(500)
+    .toArray();
+  return rows.map((m) => ({
+    direction: m.direction,
+    text: m.text,
+    at: m.occurredAt,
+    ...(m.direction === 'in'
+      ? { message_id: m.providerMessageId }
+      : { client_ref: m.clientRef, status: m.status, author: m.author ?? null }),
+  }));
 }

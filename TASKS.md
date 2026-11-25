@@ -88,10 +88,10 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 - [x] 5.3 `/ws?workspace=&after=`: check session + membership, replay missed, then live
 
 ## Task 6 — Login and API → L5
-- [ ] 6.1 `/auth/login`: redirect to IdP with PKCE (state + verifier in Redis)
-- [ ] 6.2 `/auth/callback`: exchange code, read `workspaces` claim, session in Redis, cookie
-- [ ] 6.3 `/api/me`, `/api/conversations?workspace=` with 401 / 403
-- [ ] 6.4 UI endpoints: messages of a conversation, reply, claim, close/reopen (same services)
+- [x] 6.1 `/auth/login`: redirect to IdP with PKCE (state + verifier in Redis)
+- [x] 6.2 `/auth/callback`: exchange code, read `workspaces` claim, session in Redis, cookie
+- [x] 6.3 `/api/me`, `/api/conversations?workspace=` with 401 / 403
+- [x] 6.4 UI endpoints: messages of a conversation, reply, claim, close/reopen (same services)
 
 ## Task 7 — Frontend
 - [ ] 7.1 Login button, workspace picker
@@ -102,7 +102,7 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 
 ## Task 8 — Test against the check (ongoing)
 - [x] `npm run check` after tasks 2, 3, 4 (level 1: 24/24)
-- [ ] `npm run check -- --levels 5` after task 6
+- [x] `npm run check -- --levels 5` after task 6 (level 5: 15/15)
 - [ ] `npm run check:full` for levels 2 and 3
 
 ## Task 9 — Submission (at 1:50)

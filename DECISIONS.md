@@ -13,6 +13,9 @@ See README.md.
 - Claiming a conversation that does not exist yet creates it (brief requires this for `/__grader/claim`); same rule in the UI.
 - Inbox order inside a conversation is Pigeon's `occurred_at`, not arrival time, because webhooks arrive out of order.
 - A workspace "exists" if we have a Pigeon API key for it (`PIGEON_KEY_WS_*`); unknown workspaces in webhooks are acknowledged and ignored.
+- Roles: `admin` and `agent` can do the same things for now (claim, reply, close); the brief does not define a difference.
+- In the UI an agent claims as themselves (`sub` from the session); the body can never name another agent.
+- Sessions: random 256-bit id in an HttpOnly, SameSite=Lax cookie; data in Redis (8 h) so every copy sees it. id_token verified (RS256 via JWKS, iss, aud, exp, nonce); login uses PKCE S256 + state bound to the browser by a cookie.
 - Realtime `seq` comes from an atomic Mongo counter (not Redis) so it survives a Redis restart and stays unique across server copies.
 
 ## How it handles failure
