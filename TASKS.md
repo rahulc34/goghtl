@@ -83,9 +83,9 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 - [x] 4.5 Per-workspace rate limit in Redis (8, refill 4/s), shared by all copies
 
 ## Task 5 — Real-time → L5, L3
-- [ ] 5.1 `emitEvent`: seq per workspace (Redis INCR), save event in Mongo
-- [ ] 5.2 Broadcast through Redis pub/sub to every copy
-- [ ] 5.3 `/ws?workspace=&after=`: check session + membership, replay missed, then live
+- [x] 5.1 `emitEvent`: seq per workspace (atomic Mongo counter), save event in Mongo
+- [x] 5.2 Broadcast through Redis pub/sub to every copy
+- [x] 5.3 `/ws?workspace=&after=`: check session + membership, replay missed, then live
 
 ## Task 6 — Login and API → L5
 - [ ] 6.1 `/auth/login`: redirect to IdP with PKCE (state + verifier in Redis)

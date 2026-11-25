@@ -18,6 +18,19 @@ export async function connectRedis(): Promise<void> {
   console.log('[redis] connected');
 }
 
+// A subscribed Redis connection can't run normal commands, so pub/sub gets its own.
+let subscriber: Redis | undefined;
+
+export function getSubscriber(): Redis {
+  if (!subscriber) {
+    subscriber = new Redis(config.redisUrl, { maxRetriesPerRequest: null });
+    subscriber.on('error', (err) => console.warn('[redis-sub]', err.message));
+  }
+  return subscriber;
+}
+
 export async function closeRedis(): Promise<void> {
-  if (redis) await redis.quit().catch(() => redis?.disconnect());
+  await Promise.all(
+    [redis, subscriber].filter(Boolean).map((c) => c!.quit().catch(() => c!.disconnect())),
+  );
 }

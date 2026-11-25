@@ -4,6 +4,7 @@ import { connectDb, closeDb } from './lib/db.js';
 import { connectRedis, closeRedis } from './lib/redis.js';
 import { createApp, state } from './app.js';
 import { startSender } from './workers/sender.js';
+import { attachWebSocket } from './ws.js';
 
 async function main() {
   // Connect first, then listen: /healthz only answers once we can serve traffic.
@@ -13,6 +14,9 @@ async function main() {
   const server = createServer(createApp());
   server.requestTimeout = 30_000; // never let a request hang forever
   server.keepAliveTimeout = 5_000;
+
+  // GET /ws: realtime events (subscribes to Redis before we accept traffic).
+  const closeWs = await attachWebSocket(server);
 
   server.listen(config.port, () => {
     console.log(`[server] pid ${process.pid} listening on http://localhost:${config.port}`);
@@ -33,6 +37,7 @@ async function main() {
     force.unref();
 
     // Stop accepting connections, let in-flight requests finish, then close stores.
+    await closeWs();
     server.closeIdleConnections();
     // Let in-flight sends finish (an unfinished lease is picked up by another copy anyway).
     await Promise.all([new Promise<void>((resolve) => server.close(() => resolve())), stopSender()]);
