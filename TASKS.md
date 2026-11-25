@@ -57,12 +57,12 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 - [x] 0.2 Connect Mongo + Redis, create indexes at startup
 - [x] 0.3 `/healthz` = 200 only when Mongo + Redis connected
 - [x] 0.4 Async error wrapper + error handler + graceful shutdown (SIGTERM)
-- [ ] 0.5 Run `npm run check` once to see what it expects
+- [x] 0.5 Run `npm run check` once to see what it expects
 
 ## Task 1 — Grader endpoints (base)
-- [ ] 1.1 `x-grader-token` middleware (401 if missing/wrong)
-- [ ] 1.2 `POST /__grader/reset` — wipe app data in Mongo + Redis
-- [ ] 1.3 `GET /__grader/snapshot` — contacts, inbound ids, assignee, outbound statuses
+- [x] 1.1 `x-grader-token` middleware (401 if missing/wrong)
+- [x] 1.2 `POST /__grader/reset` — wipe app data in Mongo + Redis
+- [x] 1.3 `GET /__grader/snapshot` — contacts, inbound ids, assignee, outbound statuses
 
 ## Task 2 — Receive messages (webhook) → L1, L2, L4
 - [ ] 2.1 Raw body + HMAC signature + 5-min timestamp → 401
