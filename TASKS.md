@@ -53,10 +53,10 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 ```
 
 ## Task 0 — Foundation
-- [ ] 0.1 Settings from env (PORT, Mongo, Redis, Pigeon keys, grader token, IdP)
-- [ ] 0.2 Connect Mongo + Redis, create indexes at startup
-- [ ] 0.3 `/healthz` = 200 only when Mongo + Redis connected
-- [ ] 0.4 Async error wrapper + error handler + graceful shutdown (SIGTERM)
+- [x] 0.1 Settings from env (PORT, Mongo, Redis, Pigeon keys, grader token, IdP)
+- [x] 0.2 Connect Mongo + Redis, create indexes at startup
+- [x] 0.3 `/healthz` = 200 only when Mongo + Redis connected
+- [x] 0.4 Async error wrapper + error handler + graceful shutdown (SIGTERM)
 - [ ] 0.5 Run `npm run check` once to see what it expects
 
 ## Task 1 — Grader endpoints (base)

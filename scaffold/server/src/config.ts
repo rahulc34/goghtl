@@ -29,6 +29,8 @@ export const config = {
     clientSecret: env('OIDC_CLIENT_SECRET', 'dev-secret-not-for-production'),
     redirectUri: env('OIDC_REDIRECT_URI', 'http://localhost:4000/auth/callback'),
   },
+  // Grace period for SIGTERM before we force exit
+  shutdownTimeoutMs: Number(env('SHUTDOWN_TIMEOUT_MS', '10000')),
   paybox: {
     url: env('PAYBOX_URL', 'http://localhost:4030'),
     secretKey: env('PAYBOX_SECRET_KEY', 'sk_test_paybox_51c0de'),
@@ -36,3 +38,8 @@ export const config = {
     webhookSecret: env('PAYBOX_WEBHOOK_SECRET', 'whsec_paybox_dev'),
   },
 };
+
+// A workspace exists if we have a Pigeon API key for it.
+export const knownWorkspaces = (): string[] => Object.keys(config.pigeon.apiKeys);
+export const isKnownWorkspace = (ws: unknown): ws is string =>
+  typeof ws === 'string' && Object.hasOwn(config.pigeon.apiKeys, ws);

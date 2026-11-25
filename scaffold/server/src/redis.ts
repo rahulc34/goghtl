@@ -1,10 +1,23 @@
 import { Redis } from 'ioredis';
 import { config } from './config.js';
 
+// Main connection for normal commands (counters, rate limit, sessions, publish).
 let redis: Redis | undefined;
 
-// Connects on first use. Call from anywhere: const redis = getRedis();
 export function getRedis(): Redis {
-  if (!redis) redis = new Redis(config.redisUrl, { lazyConnect: false, maxRetriesPerRequest: 2 });
+  if (!redis) {
+    redis = new Redis(config.redisUrl, { maxRetriesPerRequest: 2 });
+    redis.on('error', (err) => console.warn('[redis]', err.message));
+  }
   return redis;
+}
+
+// Called once at startup: waits until Redis answers.
+export async function connectRedis(): Promise<void> {
+  await getRedis().ping();
+  console.log('[redis] connected');
+}
+
+export async function closeRedis(): Promise<void> {
+  if (redis) await redis.quit().catch(() => redis?.disconnect());
 }
