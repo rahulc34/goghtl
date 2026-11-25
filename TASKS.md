@@ -94,11 +94,11 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 - [x] 6.4 UI endpoints: messages of a conversation, reply, claim, close/reopen (same services)
 
 ## Task 7 — Frontend
-- [ ] 7.1 Login button, workspace picker
-- [ ] 7.2 Inbox list (newest first, paginated)
-- [ ] 7.3 Conversation view: messages, reply box, status ticks
-- [ ] 7.4 Claim / close / reopen buttons
-- [ ] 7.5 Live updates via WebSocket, reconnect with `after=lastSeq`
+- [x] 7.1 Login button, workspace picker
+- [x] 7.2 Inbox list (newest first, paginated)
+- [x] 7.3 Conversation view: messages, reply box, status ticks
+- [x] 7.4 Claim / close / reopen buttons
+- [x] 7.5 Live updates via WebSocket, reconnect with `after=lastSeq`
 
 ## Task 8 — Test against the check (ongoing)
 - [x] `npm run check` after tasks 2, 3, 4 (level 1: 24/24)

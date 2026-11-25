@@ -1,7 +1,7 @@
 import { Router, type RequestHandler } from 'express';
 import { ah, HttpError } from '../lib/http.js';
 import { getSession, roleIn, sessionIdFromCookieHeader, type Session } from '../services/sessions.js';
-import { claim, release, setState, listConversations, listMessages } from '../services/conversations.js';
+import { claim, release, setState, listConversations, listMessages, getConversation } from '../services/conversations.js';
 import { queueReply } from '../services/replies.js';
 
 // The UI's API. Same services as the grader endpoints; identity always comes from the session.
@@ -41,6 +41,16 @@ apiRouter.get(
     const limit = Math.min(Math.max(Number(req.query.limit) || 30, 1), 100);
     const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : undefined;
     res.json(await listConversations(res.locals.workspace, { state, limit, cursor }));
+  }),
+);
+
+apiRouter.get(
+  '/conversations/:contact',
+  requireMember,
+  ah(async (req, res) => {
+    const c = await getConversation(res.locals.workspace, req.params.contact);
+    if (!c) throw new HttpError(404, 'Conversation not found');
+    res.json(c);
   }),
 );
 

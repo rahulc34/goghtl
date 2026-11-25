@@ -128,3 +128,8 @@ export async function listMessages(workspace: string, contact: string) {
       : { client_ref: m.clientRef, status: m.status, author: m.author ?? null }),
   }));
 }
+
+export async function getConversation(workspace: string, contact: string) {
+  const c = await conversations().findOne({ workspace, contact });
+  return c ? { contact: c.contact, assignee: c.assignee ?? null, state: c.state, lastActivityAt: c.lastActivityAt } : null;
+}
