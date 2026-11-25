@@ -1,6 +1,7 @@
 import express from 'express';
-import { errorHandler, HttpError } from './http.js';
-import { graderRouter } from './grader.js';
+import { errorHandler, HttpError } from './lib/http.js';
+import { graderRouter } from './routes/grader.js';
+import { webhookRouter } from './routes/webhook.js';
 
 // Set to true when SIGTERM arrives, so the load balancer stops sending us traffic.
 export const state = { shuttingDown: false };
@@ -16,8 +17,8 @@ export function createApp() {
     res.json({ ok: true });
   });
 
-  // NOTE: the Pigeon webhook router goes HERE, before express.json(),
-  // because the signature is computed over the raw body (task 2).
+  // Before express.json(): the webhook needs the raw body to check the signature.
+  app.use('/webhooks', webhookRouter);
 
   app.use(express.json({ limit: '1mb' }));
 

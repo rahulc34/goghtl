@@ -1,9 +1,10 @@
 import { Router, type RequestHandler } from 'express';
 import { timingSafeEqual } from 'node:crypto';
-import { config } from './config.js';
-import { db, C } from './db.js';
-import { getRedis } from './redis.js';
-import { ah, HttpError } from './http.js';
+import { config, isKnownWorkspace } from '../config.js';
+import { claim } from '../services/conversations.js';
+import { db, C } from '../lib/db.js';
+import { getRedis } from '../lib/redis.js';
+import { ah, HttpError } from '../lib/http.js';
 
 // 1.1 Every /__grader route needs x-grader-token == GRADER_TOKEN, else 401.
 const requireGraderToken: RequestHandler = (req, _res, next) => {
@@ -34,6 +35,20 @@ graderRouter.post(
     } while (cursor !== '0');
 
     res.json({ ok: true });
+  }),
+);
+
+// Claim a contact's conversation for an agent. 200 = this agent holds it, 409 = someone else does.
+graderRouter.post(
+  '/claim',
+  ah(async (req, res) => {
+    const { workspace, contact, agent } = req.body ?? {};
+    if (!isKnownWorkspace(workspace)) throw new HttpError(404, 'Unknown workspace');
+    if (typeof contact !== 'string' || !contact || typeof agent !== 'string' || !agent) {
+      throw new HttpError(400, 'contact and agent are required');
+    }
+    const r = await claim(workspace, contact, agent);
+    res.status(r.ok ? 200 : 409).json(r);
   }),
 );
 

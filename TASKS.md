@@ -65,15 +65,15 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 - [x] 1.3 `GET /__grader/snapshot` — contacts, inbound ids, assignee, outbound statuses
 
 ## Task 2 — Receive messages (webhook) → L1, L2, L4
-- [ ] 2.1 Raw body + HMAC signature + 5-min timestamp → 401
-- [ ] 2.2 Unparseable → 400; unknown type / workspace → 200 and ignore
-- [ ] 2.3 Inbound: save with unique `message_id`, upsert conversation (last activity)
-- [ ] 2.4 Status: update reply status, never backwards; unknown `client_ref` → 200 ignore
-- [ ] 2.5 Answer 2xx only after saving
+- [x] 2.1 Raw body + HMAC signature + 5-min timestamp → 401
+- [x] 2.2 Unparseable → 400; unknown type / workspace → 200 and ignore
+- [x] 2.3 Inbound: save with unique `message_id`, upsert conversation (last activity)
+- [x] 2.4 Status: update reply status, never backwards; unknown `client_ref` → 200 ignore
+- [x] 2.5 Answer 2xx only after saving
 
 ## Task 3 — Claim → L1
-- [ ] 3.1 `POST /__grader/claim` atomic: 200 holder / 409 other; creates conversation if missing
-- [ ] 3.2 Close and reopen
+- [x] 3.1 `POST /__grader/claim` atomic: 200 holder / 409 other; creates conversation if missing
+- [x] 3.2 Close and reopen (service; UI route in 6.4)
 
 ## Task 4 — Send replies → L1, L2, L3
 - [ ] 4.1 `POST /__grader/reply`: save `queued`, unique (workspace, client_ref), 202; duplicate → 202

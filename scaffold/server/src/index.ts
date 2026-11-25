@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { config } from './config.js';
-import { connectDb, closeDb } from './db.js';
-import { connectRedis, closeRedis } from './redis.js';
+import { connectDb, closeDb } from './lib/db.js';
+import { connectRedis, closeRedis } from './lib/redis.js';
 import { createApp, state } from './app.js';
 
 async function main() {

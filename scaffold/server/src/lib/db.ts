@@ -1,5 +1,5 @@
 import { MongoClient, type Db } from 'mongodb';
-import { config } from './config.js';
+import { config } from '../config.js';
 
 // One client per process. The driver reconnects on its own if Mongo restarts.
 const client = new MongoClient(config.mongoUrl, {
@@ -45,6 +45,7 @@ export const C = {
   conversations: 'conversations',
   messages: 'messages',
   events: 'events',
+  counters: 'counters', // seq per workspace
 } as const;
 
 // createIndex is a no-op when the index already exists, so several copies
@@ -74,4 +75,15 @@ async function ensureIndexes(d: Db): Promise<void> {
     // Real-time events: seq is unique within a workspace, replay with seq > after.
     d.collection(C.events).createIndex({ workspace: 1, seq: 1 }, { unique: true }),
   ]);
+}
+
+// Two concurrent upserts on the same unique key: one inserts, the other gets E11000.
+// Running it again turns the loser into a plain update of the row the winner created.
+export async function retryOnDuplicate<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err: any) {
+    if (err?.code === 11000) return fn();
+    throw err;
+  }
 }

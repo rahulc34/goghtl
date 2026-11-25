@@ -9,7 +9,11 @@ See README.md.
 - [e.g. Payment flow first: it carries the most risk (double charges) and the checker tests it hardest.]
 
 ## Decisions where the brief was silent
-- [Decision] — [reason]
+- A new customer message on a closed conversation reopens it (keeps the assignee) — the customer needs an answer again.
+- Claiming a conversation that does not exist yet creates it (brief requires this for `/__grader/claim`); same rule in the UI.
+- Inbox order inside a conversation is Pigeon's `occurred_at`, not arrival time, because webhooks arrive out of order.
+- A workspace "exists" if we have a Pigeon API key for it (`PIGEON_KEY_WS_*`); unknown workspaces in webhooks are acknowledged and ignored.
+- Realtime `seq` comes from an atomic Mongo counter (not Redis) so it survives a Redis restart and stays unique across server copies.
 
 ## How it handles failure
 - Retries / duplicates: [idempotency key + unique index on ...]

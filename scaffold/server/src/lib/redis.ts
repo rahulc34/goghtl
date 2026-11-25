@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { config } from './config.js';
+import { config } from '../config.js';
 
 // Main connection for normal commands (counters, rate limit, sessions, publish).
 let redis: Redis | undefined;
