@@ -1,73 +1,55 @@
-# PLAN
+# Design: data model and API
 
-<!-- Fill this between 0:10 and 0:30. Update it as scope changes. -->
+Architecture diagram and build order: `TASKS.md`. Choices and known problems: `DECISIONS.md`.
 
-## 1. Scope
-| Feature | Priority | Why |
-|---|---|---|
-| [feature] | MUST | [needed by checker / core flow] |
-| [feature] | SHOULD | |
-| [feature] | CUT | [reason + what happens without it] |
+## MongoDB
 
-Build order: [1] → [2] → [3] → frontend → SHOULDs
+### `conversations` — one per contact per workspace
+| Field | Notes |
+| --- | --- |
+| workspace, contact | **unique** `(workspace, contact)` |
+| assignee | agent id or `null`; set only by the atomic claim |
+| state | `open` / `closed` |
+| lastActivityAt | `$max` of message times; inbox index `(workspace, lastActivityAt desc)` |
 
-## 2. High-level design
-```mermaid
-flowchart LR
-  U[Browser / React] -->|HTTP| API[API :4000<br/>N instances]
-  API --> M[(MongoDB)]
-  API --> R[(Redis)]
-  API -->|login / OIDC| IDP[Mock IdP :4020]
-  API -->|send| P[Pigeon :4010]
-  API -->|pay| PB[Paybox :4030]
-```
+### `messages` — inbound and outbound in one collection
+| Field | Notes |
+| --- | --- |
+| direction | `in` / `out` |
+| workspace, contact, text, occurredAt | order index `(workspace, contact, occurredAt)` |
+| providerMessageId | inbound: **unique** `(workspace, providerMessageId)` where `direction=in` |
+| evented | inbound: realtime event already emitted |
+| clientRef | outbound: **unique** `(workspace, clientRef)` where `direction=out` |
+| status, statusRank | outbound, visible: `queued → sent → delivered / failed`; only moves forward |
+| sendState, nextAttemptAt, leaseOwner, attempts | outbound, worker: `pending → sending (lease) → accepted / rejected`; index `(sendState, nextAttemptAt)` |
+| author | outbound: agent `sub`, or `null` for the grader |
 
-## 3. Flows
-### Flow: [name]
-```mermaid
-sequenceDiagram
-  participant C as Client
-  participant A as API
-  participant D as Mongo
-  participant X as Provider
-  C->>A: POST /[x] (Idempotency-Key)
-  A->>D: insert {key, status: pending} (unique key)
-  A->>X: call (timeout + retry)
-  X-->>A: result
-  A->>D: update status done/failed
-  A-->>C: 200/201
-```
-Edge cases:
-- [ ] Same request sent twice / retried by client →
-- [ ] Provider times out or returns 5xx →
-- [ ] Provider succeeds but our process dies before saving →
-- [ ] Two instances handle the same thing at once →
-- [ ] Mongo/Redis briefly down →
-- [ ] Invalid / missing auth →
+### `events` — realtime log for replay
+`{ workspace, seq, type, contact, ... }`, **unique** `(workspace, seq)`.
 
-## 4. Data model
-### `[collection]`
-| Field | Type | Notes |
-|---|---|---|
-| _id | ObjectId | |
-| idempotencyKey | string | **unique index** |
-| status | enum | pending / done / failed |
-| createdAt / updatedAt | Date | |
+### `counters`
+`{ _id: "seq:<workspace>", seq }` — atomic `$inc` gives the next `seq`.
 
-Indexes: [list]
+## Redis (all keys `sb:*`)
+| Key | Purpose |
+| --- | --- |
+| `sb:sess:<id>` | session `{sub, name, email, workspaces}`, 8 h (kept by `/__grader/reset`) |
+| `sb:pkce:<state>` | login in progress `{verifier, nonce}`, 10 min, single use |
+| `sb:rl:<ws>` | token bucket for sends to Pigeon |
+| `sb:cooloff:<ws>` | no sends until this time (after a `429`) |
+| channel `sb:events:<ws>` | pub/sub fan-out of events to every copy |
 
-### Redis
-| Key | Type | TTL | Purpose |
-|---|---|---|---|
-| [lock:x:{id}] | string | [10s] | [prevent double processing] |
-
-## 5. API
-| Method | Path | Auth | Body | Responses | Idempotent? |
-|---|---|---|---|---|---|
-| GET | /healthz | no | – | 200 | yes |
-| [POST] | [/x] | [yes] | [{...}] | 201, 400, 409 | [via Idempotency-Key] |
-
-## 6. Checker results log
-| Time | Passed / total | Main failures | Next fix |
-|---|---|---|---|
-| | | | |
+## HTTP
+| Method | Path | Notes |
+| --- | --- | --- |
+| GET | `/healthz` | 200 when ready, 503 while shutting down |
+| POST | `/webhooks/pigeon` | signed; 401 / 400 / 2xx rules from `PIGEON.md` |
+| POST | `/__grader/reset`, `/reply`, `/claim`; GET `/snapshot` | `x-grader-token` |
+| GET | `/auth/login`, `/auth/callback`; POST `/auth/logout` | OIDC code + PKCE |
+| GET | `/api/me` | 401 without session |
+| GET | `/api/conversations?workspace=&state=&cursor=&limit=` | inbox, newest first; 403 if not a member |
+| GET | `/api/conversations/:contact?workspace=` | one conversation |
+| GET | `/api/conversations/:contact/messages?workspace=` | oldest first |
+| POST | `/api/conversations/:contact/reply?workspace=` `{text, client_ref}` | 202; same `client_ref` = same reply |
+| POST | `/api/conversations/:contact/claim` · `release` · `close` · `reopen` `?workspace=` | claim 200 / 409 |
+| WS | `/ws?workspace=&after=` | session cookie; frames `{seq, type, ...}` |

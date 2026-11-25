@@ -103,11 +103,11 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 ## Task 8 — Test against the check (ongoing)
 - [x] `npm run check` after tasks 2, 3, 4 (level 1: 24/24)
 - [x] `npm run check -- --levels 5` after task 6 (level 5: 15/15)
-- [ ] `npm run check:full` for levels 2 and 3
+- [x] `npm run check:full` for levels 2 and 3 (Windows-patched copy: 75/75)
 
 ## Task 9 — Submission (at 1:50)
-- [ ] `npm run check:full` → commit `CHECK_REPORT.json`
-- [ ] `README.md` + `DECISIONS.md` (cuts, assumptions, what is still wrong)
+- [x] `npm run check:full` → commit `CHECK_REPORT.json` (+ windows-patched report)
+- [x] `README.md` + `DECISIONS.md` (cuts, assumptions, what is still wrong)
 - [ ] Export AI chats into `ai-logs/`
 - [ ] Commit, push, make repo public, send the form with the commit id
 

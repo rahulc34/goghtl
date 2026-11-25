@@ -1,7 +1,7 @@
 # CLAUDE.md — project rules for the AI
 
 ## What we are building
-Switchboard: [one or two sentences from BRIEF.md — fill in].
+Switchboard: a shared team inbox. Pigeon webhooks bring customer messages; human agents log in (OIDC), claim, reply and close conversations in real time. Several workspaces, strictly isolated.
 "Agent" = a HUMAN support agent at the business. No AI bots.
 Full plan, schema and API: `PLAN.md`. Decisions log: `DECISIONS.md`.
 

@@ -1,0 +1,112 @@
+{
+  "profile": "full",
+  "startedAt": "2026-11-25T13:55:41.470Z",
+  "checks": [
+    {
+      "level": 1,
+      "id": "inbound_complete",
+      "max": 4,
+      "got": 4,
+      "detail": "169 of 169 genuine messages stored"
+    },
+    {
+      "level": 1,
+      "id": "inbound_no_duplicates",
+      "max": 3,
+      "got": 3,
+      "detail": "0 duplicate entries"
+    },
+    {
+      "level": 1,
+      "id": "inbound_order",
+      "max": 3,
+      "got": 3,
+      "detail": "0 out-of-order positions (by occurred_at)"
+    },
+    {
+      "level": 1,
+      "id": "isolation",
+      "max": 2,
+      "got": 2,
+      "detail": "0 messages under the wrong workspace or contact, or forged/replayed ids stored"
+    },
+    {
+      "level": 1,
+      "id": "rejects_forged",
+      "max": 2,
+      "got": 2,
+      "detail": "0 of 6 forged webhooks accepted"
+    },
+    {
+      "level": 1,
+      "id": "rejects_stale",
+      "max": 1,
+      "got": 1,
+      "detail": "0 of 3 replayed webhooks accepted"
+    },
+    {
+      "level": 1,
+      "id": "ack_speed",
+      "max": 1,
+      "got": 1,
+      "detail": "p95 acknowledgement 24 ms, 0 first attempts not acknowledged"
+    },
+    {
+      "level": 1,
+      "id": "outbound_exactly_once",
+      "max": 2,
+      "got": 2,
+      "detail": "12 of 12 replies reached the carrier, 0 more than once, 0 requests without Idempotency-Key"
+    },
+    {
+      "level": 1,
+      "id": "honours_retry_after",
+      "max": 1,
+      "got": 1,
+      "detail": "0 requests sent inside a Retry-After window"
+    },
+    {
+      "level": 1,
+      "id": "status_lifecycle",
+      "max": 1,
+      "got": 1,
+      "detail": "12 of 12 final statuses match the carrier"
+    },
+    {
+      "level": 1,
+      "id": "claim_atomic",
+      "max": 2,
+      "got": 2,
+      "detail": "5 of 5 conversations had exactly one winner out of six, 0 had several, 0 had none; snapshot assignee correct for 5"
+    },
+    {
+      "level": 1,
+      "id": "outage_recovery",
+      "max": 2,
+      "got": 2,
+      "detail": "6 of 6 replies requested during a 8 s provider outage were delivered afterwards, 0 more than once; 25 requests made during the outage"
+    }
+  ],
+  "score": 24,
+  "max": 75,
+  "levels": {
+    "1": {
+      "got": 24,
+      "max": 24
+    },
+    "2": {
+      "got": 0,
+      "max": 14
+    },
+    "3": {
+      "got": 0,
+      "max": 22
+    },
+    "5": {
+      "got": 0,
+      "max": 15
+    }
+  },
+  "error": "GET /__grader/snapshot returned 502",
+  "finishedAt": "2026-11-25T13:57:40.981Z"
+}
