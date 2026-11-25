@@ -69,8 +69,11 @@ async function ensureIndexes(d: Db): Promise<void> {
     // Messages of a conversation in order. Order is Pigeon's occurred_at, not arrival time
     // (webhooks arrive out of order); outbound messages use the time we accepted them.
     d.collection(C.messages).createIndex({ workspace: 1, contact: 1, occurredAt: 1 }),
-    // Sender worker: find replies that are due.
-    d.collection(C.messages).createIndex({ status: 1, nextAttemptAt: 1 }),
+    // Sender worker: find replies that are due (pending, or a lease that ran out).
+    d.collection(C.messages).createIndex(
+      { sendState: 1, nextAttemptAt: 1 },
+      { partialFilterExpression: { direction: 'out' } },
+    ),
 
     // Real-time events: seq is unique within a workspace, replay with seq > after.
     d.collection(C.events).createIndex({ workspace: 1, seq: 1 }, { unique: true }),

@@ -2,6 +2,7 @@ import { Router, type RequestHandler } from 'express';
 import { timingSafeEqual } from 'node:crypto';
 import { config, isKnownWorkspace } from '../config.js';
 import { claim } from '../services/conversations.js';
+import { queueReply } from '../services/replies.js';
 import { db, C } from '../lib/db.js';
 import { getRedis } from '../lib/redis.js';
 import { ah, HttpError } from '../lib/http.js';
@@ -49,6 +50,20 @@ graderRouter.post(
     }
     const r = await claim(workspace, contact, agent);
     res.status(r.ok ? 200 : 409).json(r);
+  }),
+);
+
+// Send a reply as if an agent typed it. 202 once it is safely stored; same client_ref = same reply.
+graderRouter.post(
+  '/reply',
+  ah(async (req, res) => {
+    const { workspace, contact, text, client_ref } = req.body ?? {};
+    if (!isKnownWorkspace(workspace)) throw new HttpError(404, 'Unknown workspace');
+    if (typeof contact !== 'string' || !contact || typeof text !== 'string' || typeof client_ref !== 'string' || !client_ref) {
+      throw new HttpError(400, 'contact, text and client_ref are required');
+    }
+    await queueReply(workspace, contact, text, client_ref, null);
+    res.status(202).json({ ok: true, client_ref });
   }),
 );
 

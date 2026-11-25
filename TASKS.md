@@ -76,11 +76,11 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 - [x] 3.2 Close and reopen (service; UI route in 6.4)
 
 ## Task 4 — Send replies → L1, L2, L3
-- [ ] 4.1 `POST /__grader/reply`: save `queued`, unique (workspace, client_ref), 202; duplicate → 202
-- [ ] 4.2 Sender worker: atomically take a reply with a lease (dead copy's work retaken < 60 s)
-- [ ] 4.3 Call Pigeon with `Idempotency-Key = client_ref` + timeout
-- [ ] 4.4 429 / 503 / timeout / outage → stay queued, retry later (`Retry-After`)
-- [ ] 4.5 Per-workspace rate limit in Redis (8, refill 4/s), shared by all copies
+- [x] 4.1 `POST /__grader/reply`: save `queued`, unique (workspace, client_ref), 202; duplicate → 202
+- [x] 4.2 Sender worker: atomically take a reply with a lease (dead copy's work retaken < 60 s)
+- [x] 4.3 Call Pigeon with `Idempotency-Key = client_ref` + timeout
+- [x] 4.4 429 / 503 / timeout / outage → stay queued, retry later (`Retry-After`)
+- [x] 4.5 Per-workspace rate limit in Redis (8, refill 4/s), shared by all copies
 
 ## Task 5 — Real-time → L5, L3
 - [ ] 5.1 `emitEvent`: seq per workspace (Redis INCR), save event in Mongo
@@ -101,7 +101,7 @@ Order follows the brief: level 1 → 5 → 2 → 3. Commit after every sub-task 
 - [ ] 7.5 Live updates via WebSocket, reconnect with `after=lastSeq`
 
 ## Task 8 — Test against the check (ongoing)
-- [ ] `npm run check` after tasks 2, 3, 4
+- [x] `npm run check` after tasks 2, 3, 4 (level 1: 24/24)
 - [ ] `npm run check -- --levels 5` after task 6
 - [ ] `npm run check:full` for levels 2 and 3
 

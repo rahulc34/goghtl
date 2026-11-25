@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { connectDb, closeDb } from './lib/db.js';
 import { connectRedis, closeRedis } from './lib/redis.js';
 import { createApp, state } from './app.js';
+import { startSender } from './workers/sender.js';
 
 async function main() {
   // Connect first, then listen: /healthz only answers once we can serve traffic.
@@ -17,7 +18,8 @@ async function main() {
     console.log(`[server] pid ${process.pid} listening on http://localhost:${config.port}`);
   });
 
-  // Background workers start here later (sender worker, task 4).
+  // Sends queued replies to Pigeon (also picks up work left by a crashed copy).
+  const stopSender = startSender();
 
   async function shutdown(signal: string) {
     if (state.shuttingDown) return;
@@ -32,7 +34,8 @@ async function main() {
 
     // Stop accepting connections, let in-flight requests finish, then close stores.
     server.closeIdleConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    // Let in-flight sends finish (an unfinished lease is picked up by another copy anyway).
+    await Promise.all([new Promise<void>((resolve) => server.close(() => resolve())), stopSender()]);
     await Promise.all([closeDb(), closeRedis()]);
     console.log('[server] bye');
     process.exit(0);
